@@ -1,0 +1,31 @@
+{
+  "name": "rock_assestment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "workspaces": [
+    "packages/api",
+    "packages/types",
+    "packages/app"
+  ],
+  "scripts": {
+    "dev": "npm run tsc --workspace=rock_types && npm run build:app && npm run dev:api",
+    "build:api": "npm run tsc --workspace=rock_types && npm run build --workspace=api",
+    "start:api": "npm run tsc --workspace=rock_types && npm run start --workspace=api",
+    "dev:api": "npm run tsc --workspace=rock_types && npm run build:app && npm run dev --workspace=api",
+    "test:api": "npm run tsc --workspace=rock_types && npm run test --workspace=api",
+    "build:app": "npm run tsc --workspace=rock_types && npm run build --workspace=app",
+    "start:app": "npm run tsc --workspace=rock_types && npm run start --workspace=app",
+    "dev:app": "npm run tsc --workspace=rock_types && npm run start --workspace=app",
+    "test:app": "npm run tsc --workspace=rock_types && npm run test --workspace=app"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "23.3.13",
+    "jest": "23.6.0",
+    "rock_types": "^1.0.0",
+    "ts-jest": "23.10.0"
+  }
+}
