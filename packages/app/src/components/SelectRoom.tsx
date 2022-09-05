@@ -4,6 +4,7 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { useNavigate } from "react-router-dom";
+import { Room } from "rock_types";
 
 import { RoomContext } from "../context/RoomContext";
 
@@ -21,7 +22,7 @@ const SelectRoom: React.FC<SelectRoomPropType> = ({
 }: SelectRoomPropType) => {
   const navigate = useNavigate();
 
-  const { setRoom, socket } = useContext(RoomContext);
+  const { room, setRoom, socket } = useContext(RoomContext);
 
   const [match, setMatch] = useState({
     nickname: "",
@@ -42,12 +43,17 @@ const SelectRoom: React.FC<SelectRoomPropType> = ({
       })
     );
 
-    socket.on("joined_room", (data: any) => {
+    socket.on("joined_room", (data: { msg: string; room: Room }) => {
       setRoom(data.room);
 
       setModal({
         show: true,
         msg: data.msg,
+      });
+
+      setRoom({
+        ...room,
+        ...data.room,
       });
     });
 

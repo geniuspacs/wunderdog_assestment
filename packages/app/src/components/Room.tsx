@@ -1,25 +1,29 @@
 import React from "react";
 import { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
+import { MovementEnum, MovementType } from "rock_types";
 import { RoomContext } from "../context/RoomContext";
 
 export const Room = () => {
   const { room, setRoom, socket } = useContext(RoomContext);
 
   const [paused, setPaused] = useState<boolean>(false);
+  const [gameFinished, setGameFinished] = useState<boolean>(false);
 
-  const [movement, setMovement] = useState<string | null>();
+  const [movement, setMovement] = useState<MovementType | null>();
 
-  const [winRounds, setWinRounds] = useState({ rounds: 0 });
+  const [winRounds, setWinRounds] = useState<number>(0);
 
   useEffect(() => {
-    if (winRounds.rounds > (room?.rounds || 0) / 2) {
+    if (winRounds > parseInt(room.rounds) / 2) {
       socket.emit("game_end", {
         winnerId: socket.id,
+        roomId: room.roomId,
       });
     }
-  }, [winRounds, setWinRounds]);
+  }, [winRounds]);
 
   useEffect(() => {
     socket.on("joined_room", ({ room }: any) => {
@@ -32,21 +36,31 @@ export const Room = () => {
 
     socket.on("result", ({ msg, winnerId }: any) => {
       alert(msg);
-      console.log(socket.id, winnerId);
 
       if (socket.id === winnerId) {
-        setWinRounds((prevState) => ({ rounds: prevState.rounds + 1 }));
+        setWinRounds(winRounds + 1);
       }
 
       setMovement(null);
+      setRoom({
+        ...room,
+        currentRound: room.currentRound + 1,
+      });
+    });
+
+    socket.on("game_ended", ({ msg }: any) => {
+      alert(msg);
+
+      setGameFinished(true);
     });
 
     return () => {
       socket.off("joined_room");
       socket.off("paused_game");
       socket.off("result");
+      socket.off("game_ended");
     };
-  }, []);
+  }, [gameFinished, movement, room, socket]);
 
   const handlePause = (e: any) => {
     e.preventDefault();
@@ -59,7 +73,7 @@ export const Room = () => {
     });
   };
 
-  const makeMovement = (e: any, movement: string) => {
+  const makeMovement = (e: any, movement: MovementType) => {
     e.preventDefault();
 
     setMovement(movement);
@@ -85,8 +99,8 @@ export const Room = () => {
               <Row className="d-flex flex-row justify-content-center align-items-center">
                 <Col>
                   <Button
-                    onClick={(e) => makeMovement(e, "R")}
-                    disabled={!!movement || paused}
+                    onClick={(e) => makeMovement(e, MovementEnum.ROCK)}
+                    disabled={!!movement || paused || gameFinished}
                     variant="primary"
                   >
                     Rock
@@ -94,8 +108,8 @@ export const Room = () => {
                 </Col>
                 <Col>
                   <Button
-                    onClick={(e) => makeMovement(e, "P")}
-                    disabled={!!movement || paused}
+                    onClick={(e) => makeMovement(e, MovementEnum.PAPER)}
+                    disabled={!!movement || paused || gameFinished}
                     variant="warning"
                   >
                     Paper
@@ -103,8 +117,8 @@ export const Room = () => {
                 </Col>
                 <Col>
                   <Button
-                    onClick={(e) => makeMovement(e, "S")}
-                    disabled={!!movement || paused}
+                    onClick={(e) => makeMovement(e, MovementEnum.SCISSORS)}
+                    disabled={!!movement || paused || gameFinished}
                     variant="danger"
                   >
                     Scissors
@@ -113,12 +127,20 @@ export const Room = () => {
               </Row>
 
               <Row className="mt-5 d-flex justify-content-center align-items-center">
-                <Button
-                  onClick={handlePause}
-                  variant={paused ? "warning" : "success"}
-                >
-                  {paused ? "Play" : "Pause"}
-                </Button>
+                {!gameFinished && (
+                  <Button
+                    onClick={handlePause}
+                    variant={paused ? "warning" : "success"}
+                  >
+                    {paused ? "Play" : "Pause"}
+                  </Button>
+                )}
+
+                {gameFinished && (
+                  <Link className="btn btn-primary" to={"/"}>
+                    Start new game
+                  </Link>
+                )}
               </Row>
             </Container>
           )}

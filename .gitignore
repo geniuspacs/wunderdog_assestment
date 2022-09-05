@@ -24,10 +24,12 @@ yarn-debug.log*
 yarn-error.log*
 
 /packages/app/build
+/packages/app/.env
 /packages/app/node_modules
 /packages/app/package-lock.json
 
 /packages/api/build
+/packages/api/.env
 /packages/api/node_modules
 /packages/api/package-lock.json
 

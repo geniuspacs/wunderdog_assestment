@@ -9,15 +9,13 @@
     "packages/app"
   ],
   "scripts": {
-    "dev": "npm run tsc --workspace=rock_types && npm run build:app && npm run dev:api",
-    "build:api": "npm run tsc --workspace=rock_types && npm run build --workspace=api",
-    "start:api": "npm run tsc --workspace=rock_types && npm run start --workspace=api",
-    "dev:api": "npm run tsc --workspace=rock_types && npm run build:app && npm run dev --workspace=api",
-    "test:api": "npm run tsc --workspace=rock_types && npm run test --workspace=api",
+    "build": "npm run tsc --workspace=rock_types && npm run tsc --workspace=api && npm run build --workspace=app",
     "build:app": "npm run tsc --workspace=rock_types && npm run build --workspace=app",
+    "dev:app": "npm run tsc --workspace=rock_types && npm run dev --workspace=app",
     "start:app": "npm run tsc --workspace=rock_types && npm run start --workspace=app",
-    "dev:app": "npm run tsc --workspace=rock_types && npm run start --workspace=app",
-    "test:app": "npm run tsc --workspace=rock_types && npm run test --workspace=app"
+    "build:api": "npm run tsc --workspace=rock_types && npm run tsc --workspace=api",
+    "dev:api": "npm run tsc --workspace=rock_types && npm run dev --workspace=api",
+    "start:api": "npm run tsc --workspace=rock_types && npm run start --workspace=api"
   },
   "keywords": [],
   "author": "",

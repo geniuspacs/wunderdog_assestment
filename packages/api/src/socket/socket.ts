@@ -11,7 +11,7 @@ export default function createSocketServer(httpServer: http.Server): Server {
 
     const socketServer = new Server(httpServer, {
         cors: {
-            origin: "http://localhost:5000",
+            origin: process.env.APP_URL,
             methods: ["GET", "POST"]
         }
     });
@@ -121,7 +121,7 @@ export default function createSocketServer(httpServer: http.Server): Server {
                                     const winner = socketServer.sockets.sockets.get(currentRound.winner);
 
                                     socketServer.to(data.query.roomId).emit('result', {
-                                        msg: `${winner?.data.nickname} won the game!`,
+                                        msg: `${winner?.data.nickname} won the round!`,
                                         winnerId: currentRound.winner
                                     });
                                 } else {
@@ -145,13 +145,19 @@ export default function createSocketServer(httpServer: http.Server): Server {
 
         });
 
-        socket.on("game_end", (data: { winnerId: string }) => {
-            const socketWinner = socketServer.sockets.sockets.get(data.winnerId);
-            console.log("🚀 ~ file: socket.ts ~ line 150 ~ socket.on ~ socketWinner", socketWinner)
+        socket.on("game_end", (data: { winnerId: string, roomId: string }) => {
 
-            if (socketWinner) {
-                console.log("🚀 ~ file: socket.ts ~ line 144 ~ socket.on ~ socketWinner.rooms", socketWinner.rooms);
-                // socketServer.to()
+            if (data.winnerId && data.roomId) {
+                const winner = socketServer.sockets.sockets.get(data.winnerId);
+
+                if (winner) {
+                    socketServer.to(data.roomId).emit('game_ended', {
+                        msg: `Player ${winner.data.nickname} won the game!`
+                    });
+                } else {
+                    socket.emit('error', `Player ${data.winnerId} not found.`)
+                }
+
             }
 
         });
